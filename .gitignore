@@ -1,0 +1,4 @@
+.venv/
+all-MiniLM-L6-v2/
+all-mpnet-base-v2/
+__pycache__/
