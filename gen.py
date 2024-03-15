@@ -80,7 +80,7 @@ def generate_answer_with_context(query, chat_history ):
 
     # Sử dụng OpenAI API để sinh văn bản từ prompt
     completion = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-4-turbo-preview",
         messages=messages,
         max_tokens=2000,
         temperature=1.0,
