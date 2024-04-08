@@ -1,5 +1,4 @@
 from lib import *
-import uuid
 
 def read_data_from_pdf(file_buffer):
     text = ""  # for storing the extracted text
