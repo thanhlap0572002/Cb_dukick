@@ -1,7 +1,0 @@
-streamlit
-PyPDF2
-langchain
-sentence-transformers
-qdrant-client
-openai
-uuid
