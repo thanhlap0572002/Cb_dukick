@@ -5,4 +5,4 @@ st.sidebar.success("""Ở Page App hãy lựa chọn các kiểu kịch bản ch
 
 st.title("chat bot nhà ZuCicK")
 
-st.image('D:\\Desktop\\chatbot_dukick\\Tieu_e_phu_17.png', width=450)
+st.image('Tieu_e_phu_17.png', width=450)
