@@ -1,7 +1,6 @@
 ﻿streamlit
 PyPDF2
 langchain
-sentence-transformers
 qdrant-client
 openai==0.28
 uuid
@@ -10,3 +9,5 @@ langchain_community
 opencv-python
 streamlit_chat
 pymongo
+sentence-transformers
+
