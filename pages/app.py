@@ -1,7 +1,7 @@
 from pdf_reader import read_data_from_pdf, get_text_chunks, get_embedding
 from qdrant_connect import create_qdrant_collection, insert_data_into_qdrant
 from lib import st, QdrantClient,time
-from gen import generate_image_with_dalle,generate_with_text_prompt,client,generate_prompt_from_video
+from gen import generate_image_with_dalle,generate_with_text_prompt,generate_prompt_from_video
 from image_handler import generate_prompt_from_images
 from utils import get_timestamp
 from data_operations import load_messages, delete_chat_history, get_mysql_cursor, save_text_message, save_image_message, create_mysql_connection, get_all_chat_history_ids
@@ -65,7 +65,7 @@ user_question = st.chat_input("Nhập câu hỏi của bạn:", key = 'user_ques
 pdf_files = st.sidebar.file_uploader("Chọn file PDF để tải lên:", type=['pdf'], accept_multiple_files=True)
 ################################################################################################ \/
 # Giao diện
-st.sidebar.title('Lựa chọn kịch bản')
+st.sidebar.title('Lựa chọn bối cảnh')
 
 # Lựa chọn cho ba collections khác nhau
 collections = ['field', 'mood', 'type', 'thông tin khác']
@@ -122,12 +122,6 @@ if user_question :
             
     answer = generate_with_text_prompt(user_question, combined_prompt, st.session_state['chat_history'])
     save_text_message(get_session_key(), "bot", answer)
-    
-    # st.text_area("Câu trả lời:", value=answer, height=200)
-    # st.session_state['chat_history'].append(f"human: {user_question}")
-    # st.session_state['chat_history'].append(f"Bot: {answer}")
-    # st.text_area("Lịch Sử Trò Chuyện", value="\n".join(st.session_state['chat_history']), height=300)
-
 
 # Input text from user
 user_input_text = st.text_input("Nhập mô tả văn bản sinh ảnh:")

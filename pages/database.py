@@ -20,7 +20,7 @@ def get_categories(collection_name):
     categories = db[collection_name].distinct("category")
     return categories
 
-st.title('Upload File và Cập Nhật Database')
+st.title('Upload File và Cập Nhật Data')
 
 collection_name = st.selectbox('Chọn collection:', ('field','mood', 'type','thông tin khác'), key='selected_collection')
 

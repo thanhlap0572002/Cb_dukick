@@ -16,7 +16,6 @@ from io import BytesIO
 from PIL import Image
 import time 
 import base64
-import cv2
 import tempfile
 import shutil
 openai.api_key = "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"

@@ -43,7 +43,7 @@ def generate_prompt_from_video(video_file):
 
     # Gửi yêu cầu đến OpenAI API
     params = {
-        "model": "gpt-4-vision-preview",
+        "model": "gpt-4-turbo",
         "messages": prompt_messages,
         "max_tokens": 300,
     }
@@ -52,9 +52,14 @@ def generate_prompt_from_video(video_file):
     return result.choices[0].message['content']
 
 def generate_with_text_prompt(query, text, chat_history):
-    messages = [
-        {"role": "system", "content": "This is a conversation with an AI."},
-    ]
+    messages = [{
+        "role": "user",
+        "content": [{
+            "type": "text",
+            "text": "Xin chào, tôi có thể giúp gì cho bạn?"
+        }]
+    }]
+
     for msg in chat_history:
         messages.append({"role" : "user", "content" : str(msg)})
         
@@ -62,9 +67,9 @@ def generate_with_text_prompt(query, text, chat_history):
     messages.append({"role" : "user", "content" : query})
 
     completion = openai.ChatCompletion.create(
-        model="gpt-4-0125-preview",
+        model="gpt-4-turbo",
         messages=messages,
-        max_tokens=1000,
+        max_tokens=500,
         temperature=0.75,
         top_p=1,
     )
@@ -94,3 +99,36 @@ def generate_image_with_dalle(text, chat_history):
     timestamp = int(time.time())
 
     return image_url, timestamp
+
+def generate_with_text_prompt_Customers(prompt, file_contents, chat_history):
+    messages = []
+
+    messages.append({
+        "role": "system",
+        "content": "Xin chào, tôi có thể giúp gì cho bạn?"
+    })
+
+    for msg in chat_history:
+        if isinstance(msg, dict) and "role" in msg and "content" in msg:
+            messages.append({"role": msg["role"], "content": msg["content"]})
+
+    messages.append({"role": "user", "content": prompt})
+
+    if file_contents:
+        for file in file_contents:
+            file_info = f"Tên file: {file['file_name']}, Nội dung mô tả: {file['content']}"
+            messages.append({"role": "system", "content": file_info})
+
+
+    print("Final messages list:", messages)  # In danh sách messages trước khi gọi API
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4-turbo",
+        messages=messages,
+        max_tokens=500,
+        temperature=0.75,
+        top_p=1,
+    )
+
+    return response['choices'][0]['message']['content'].strip()
+

@@ -26,7 +26,7 @@ def generate_prompt_from_images(image_files):
 
     # Gửi yêu cầu đến OpenAI API (giả định bạn đã thiết lập môi trường cho openai)
     params = {
-        "model": "gpt-4-vision-preview",
+        "model": "gpt-4-turbo",
         "messages": prompt_messages,
         "max_tokens": 500,
     }
