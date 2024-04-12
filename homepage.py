@@ -5,4 +5,8 @@ st.sidebar.success("""Ở Page App hãy lựa chọn các kiểu kịch bản ch
 
 st.title("Dukick Advertising Film")
 
+<<<<<<< HEAD
 st.image('Tieu_e_phu_17.png', width=450)
+=======
+st.image('Tieu_e_phu_17.png', width=450)
+>>>>>>> 56b74ae54374e798a91ae0472b930ce7dde1c394

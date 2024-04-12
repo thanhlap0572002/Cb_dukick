@@ -18,4 +18,5 @@ import time
 import base64
 import tempfile
 import shutil
+import cv2
 openai.api_key = "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"
