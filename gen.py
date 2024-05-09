@@ -2,8 +2,8 @@ from lib import *
 
 model_id = "all-mpnet-base-v2"
 client = QdrantClient(
-    url="https://785dad3b-d933-4697-87ad-93ccebc059d8.us-east4-0.gcp.cloud.qdrant.io:6333",
-    api_key="O8iHYXhv7fuR1IW5vA8OLGeFEpQmr6W2lqPfQbUC5iglpcPAgyuG1A",
+    url="https://785dad3b-d933-4697-87ad-93ccebc059d8.us-east4-0.gcp.cloud.qdrant.io:6333", 
+    api_key="9GNe65ku1CMzizKksXJTM1Q_qqCfwjFgA-lv8-TpX4QwtWcGX2MHKQ",
 )
 import cv2
 import os
@@ -29,14 +29,14 @@ def generate_prompt_from_video(video_file):
     video.release()
 
     # Chỉ lấy một số frame cụ thể để tạo prompt (ví dụ: mỗi 60 frames)
-    selected_frames = base64_frames[0::90]
+    selected_frames = base64_frames[0::30]
 
     prompt_messages = [
         {
             "role": "user",
             "content": [
                 "These are frames from a video that I want to upload. Generate a compelling description that I can upload along with the video.",
-                *map(lambda x: {"image": x, "resize": 384}, selected_frames),
+                *map(lambda x: {"image": x, "resize": 768}, selected_frames),
             ],
         },
     ]
@@ -69,7 +69,7 @@ def generate_with_text_prompt(query, text, chat_history):
     completion = openai.ChatCompletion.create(
         model="gpt-4-turbo",
         messages=messages,
-        max_tokens=500,
+        max_tokens=4096,
         temperature=0.75,
         top_p=1,
     )
@@ -131,4 +131,3 @@ def generate_with_text_prompt_Customers(prompt, file_contents, chat_history):
     )
 
     return response['choices'][0]['message']['content'].strip()
-

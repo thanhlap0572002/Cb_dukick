@@ -94,8 +94,6 @@ if  st.sidebar.button("Hiển thị nội dung"):
                 else:
                     st.write("Nội dung:")
                     st.code(file['content'])
-  
-                    
     else:
         st.error("Vui lòng chọn một category để hiển thị.")
 
@@ -117,4 +115,3 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(response)
     # Thêm phản hồi trợ lý vào lịch sử trò chuyện
     st.session_state.messages.append({"role": "assistant", "content": response})
-

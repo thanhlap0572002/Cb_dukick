@@ -1,5 +1,5 @@
 from pdf_reader import read_data_from_pdf, get_text_chunks, get_embedding
-from qdrant_connect import create_qdrant_collection, insert_data_into_qdrant
+from qdrant_connect import create_qdrant_collection, insert_data_into_qdrant, search_data_into_qdrant
 from lib import st, QdrantClient,time
 from gen import generate_image_with_dalle,generate_with_text_prompt,generate_prompt_from_video
 from image_handler import generate_prompt_from_images
@@ -10,7 +10,12 @@ from get_data_mongo import get_files_content, get_categories,get_database
 
 model_id = "all-mpnet-base-v2"
 
+from qdrant_client import QdrantClient
 
+client = QdrantClient(
+    url="https://785dad3b-d933-4697-87ad-93ccebc059d8.us-east4-0.gcp.cloud.qdrant.io:6333", 
+    api_key="9GNe65ku1CMzizKksXJTM1Q_qqCfwjFgA-lv8-TpX4QwtWcGX2MHKQ",
+)
 @st.cache_resource
 
 def toggle_pdf_chat():
@@ -48,7 +53,7 @@ if st.session_state.session_key == "new_session" and st.session_state.new_sessio
     st.session_state.new_session_key = None
 
 st.sidebar.title("Chat Sessions")
-chat_sessions = ["new_session"] + get_all_chat_history_ids()
+chat_sessions = ["new_session"] + get_all_chat_history_ids()[::-1]
 
 index = chat_sessions.index(st.session_state.session_index_tracker)
 st.sidebar.selectbox("Select a chat session", chat_sessions, key="session_key", index=index)
@@ -63,25 +68,55 @@ if 'upload_sessions' not in st.session_state:
 user_question = st.chat_input("Nhập câu hỏi của bạn:", key = 'user_question')
 # Upload PDF
 pdf_files = st.sidebar.file_uploader("Chọn file PDF để tải lên:", type=['pdf'], accept_multiple_files=True)
+#up video
+video_file = st.sidebar.file_uploader("Chọn file video để tải lên:", type=['mp4', 'avi', 'mov'])
 ################################################################################################ \/
 # Giao diện
+# st.sidebar.title('Lựa chọn bối cảnh')
+# import random
+
+# # Lựa chọn cho ba collections khác nhau
+# collections = ['field', 'mood', 'type', 'thông tin khác']
+
+# context = {}
+# for collection in collections:
+#     categories = get_categories(collection)
+#     selected_category = st.sidebar.selectbox(f'Chọn category cho {collection}:', categories, key=f'category_select_{collection}')
+#     files_content = get_files_content(collection, selected_category)
+#     if files_content:
+#         # Chọn ngẫu nhiên 3 nội dung file (hoặc ít hơn nếu không đủ 3)
+#         selected_files = random.sample(files_content, min(3, len(files_content)))
+#         for file in selected_files:
+#             context[f"{collection}/{file['file_name']}"] = file['content']
 st.sidebar.title('Lựa chọn bối cảnh')
+import random
 
 # Lựa chọn cho ba collections khác nhau
 collections = ['field', 'mood', 'type', 'thông tin khác']
-context = {}
 
+context = {}
 for collection in collections:
     categories = get_categories(collection)
-    selected_category = st.sidebar.selectbox(f'Chọn category cho {collection}:', categories, key=f'category_select_{collection}')
-    files_content = get_files_content(collection, selected_category)
-    if files_content:
-        for file in files_content:
-            context[f"{collection}/{file['file_name']}"] = file['content']
+    
+    # Đảm bảo rằng 'None' luôn có trong danh sách và là lựa chọn mặc định
+    if 'None' not in categories:
+        categories.insert(0, 'None')
+        
+    # Set 'None' là lựa chọn mặc định khi mới chạy chương trình
+    default_index = categories.index('None')
+    selected_category = st.sidebar.selectbox(f'Chọn category cho {collection}:', categories, index=default_index, key=f'category_select_{collection}')
+    
+    # Xử lý nội dung file nếu selected_category không phải là 'None'
+    if selected_category != 'None':
+        files_content = get_files_content(collection, selected_category)
+        if files_content:
+            # Chọn ngẫu nhiên 3 nội dung file (hoặc ít hơn nếu không đủ 3)
+            selected_files = random.sample(files_content, min(3, len(files_content)))
+            for file in selected_files:
+                context[f"{collection}/{file['file_name']}"] = file['content']
 
 ################################################################################################# /\
-#up video
-video_file = st.sidebar.file_uploader("Chọn file video để tải lên:", type=['mp4', 'avi', 'mov'])
+
 image_files = st.sidebar.file_uploader("Chọn file ảnh để tải lên:", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if pdf_files is not None and len(pdf_files) > 0:
@@ -89,30 +124,31 @@ if pdf_files is not None and len(pdf_files) > 0:
         raw_text = read_data_from_pdf(pdf_file)  
         text_chunks = get_text_chunks(raw_text)
         embeddings_points = get_embedding(text_chunks,model_id)
-
-        #create_qdrant_collection(client,"chatbot_with_qdrant")
-        #insert_data_into_qdrant(client, "chatbot_with_qdrant", embeddings_points)
+        print(embeddings_points)
+        create_qdrant_collection(client,"chatbot_with_qdrant")
+        insert_data_into_qdrant(client, "chatbot_with_qdrant", embeddings_points)
 
 if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
 if user_question :
-    st.write(user_question)
+    result = search_data_into_qdrant(client, "chatbot_with_qdrant", user_question, model_id)
     save_text_message(get_session_key(), "human", user_question)
-    combined_prompts = f" phân tích kịch bản chính của các mô tả và từ đó sáng tạo cho kịch bản mới : {context}"
+    st.write(user_question)
+    
     
     combined_prompt = "\n".join([message['content'] for message in load_messages(get_session_key())])
-    if video_file:
-
+    if video_file:      
+        
         combined_prompt += "\n\nMô tả video:"
         combined_prompt += generate_prompt_from_video(video_file)
         
     if pdf_files:
-
-        combined_prompt += "\n\nNội dung PDF:"
-        for pdf_file in pdf_files:
-            raw_text = read_data_from_pdf(pdf_file)
-            save_text_message(get_session_key(), "human", raw_text)
-            combined_prompt += raw_text
+        combined_prompt = f" phân tích kịch bản chính của các mô tả và từ đó sáng tạo cho kịch bản mới : {context}"
+        combined_prompt +=  str(result)
+        # for pdf_file in pdf_files:
+        #     raw_text = read_data_from_pdf(pdf_file)
+        #     #save_text_message(get_session_key(), "human", raw_text)
+        #     combined_prompt += raw_text
     if image_files:
         save_text_message(get_session_key(), "human", user_question)
         for image in image_files:

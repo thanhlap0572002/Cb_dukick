@@ -19,4 +19,4 @@ import base64
 import tempfile
 import shutil
 import cv2
-openai.api_key = "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"
+openai.api_key = "sk-proj-D0bqBJNuu5C6Lu7tQ7tRT3BlbkFJCdJk6bIpuXag34onwDNf"
