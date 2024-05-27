@@ -43,7 +43,7 @@ def generate_prompt_from_video(video_file):
 
     # Gửi yêu cầu đến OpenAI API
     params = {
-        "model": "gpt-4-turbo",
+        "model": "gpt-4o-2024-05-13",
         "messages": prompt_messages,
         "max_tokens": 300,
     }
@@ -67,7 +67,7 @@ def generate_with_text_prompt(query, text, chat_history):
     messages.append({"role" : "user", "content" : query})
 
     completion = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
+        model="gpt-4o-2024-05-13",
         messages=messages,
         max_tokens=4096,
         temperature=0.75,
@@ -123,7 +123,7 @@ def generate_with_text_prompt_Customers(prompt, file_contents, chat_history):
     print("Final messages list:", messages)  # In danh sách messages trước khi gọi API
 
     response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
+        model="gpt-4o-2024-05-13",
         messages=messages,
         max_tokens=500,
         temperature=0.75,
